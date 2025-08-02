@@ -3,36 +3,33 @@ import {
   Get,
   Post,
   Param,
-  Inject,
   Body,
   Query,
   Patch,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrdersPagination } from './dto/orders-pagination.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { NatsService } from '../transports/nats/nats.service';
 
 @Controller('orders')
 export class OrdersController {
-  constructor(
-    @Inject('ORDERS_SERVICE') private readonly ordersService: ClientProxy,
-  ) {}
+  constructor(private readonly natsService: NatsService) {}
 
   @Post()
   create(@Body() dto: CreateOrderDto) {
-    return this.ordersService.send('CREATE_ORDER', dto);
+    return this.natsService.send('CREATE_ORDER', dto);
   }
 
   @Get()
   findAll(@Query() input: OrdersPagination) {
-    return this.ordersService.send('FIND_ORDERS', input);
+    return this.natsService.send('FIND_ORDERS', input);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.ordersService.send('FIND_ORDER', { id });
+    return this.natsService.send('FIND_ORDER', { id });
   }
 
   @Patch(':id')
@@ -40,7 +37,7 @@ export class OrdersController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() input: UpdateOrderDto,
   ) {
-    return this.ordersService.send('CHANGE_ORDER_STATUS', {
+    return this.natsService.send('CHANGE_ORDER_STATUS', {
       id,
       ...input,
     });

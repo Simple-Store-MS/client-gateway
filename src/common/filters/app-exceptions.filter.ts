@@ -1,5 +1,5 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
-import e, { Response } from 'express';
+import { Response } from 'express';
 
 interface CustomError {
   statusCode?: number;
